@@ -1,0 +1,32 @@
+format_version: '11'
+default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+
+project_type: flutter
+
+workflows:
+  ios-build:
+    name: iOS Build
+    stack: osx-xcode-15.0.x # o la más reciente compatible
+    environment:
+      BITRISE_PROJECT_PATH: "ios/Runner.xcworkspace"
+      BITRISE_SCHEME: "Runner"
+      FLUTTER_BUILD_MODE: "release"
+    steps:
+      - activate-ssh-key@4: {}
+      - git-clone@6: {}
+      - flutter-installer@0:
+          inputs:
+            version: stable
+      - cache-pull@2: {}
+      - certificate-and-profile-installer@1: {}
+      - flutter-build@0:
+          inputs:
+            platform: ios
+            ios_output_type: archive
+      - xcode-archive@4:
+          inputs:
+            export_method: app-store
+            scheme: "$BITRISE_SCHEME"
+            project_path: "$BITRISE_PROJECT_PATH"
+      - deploy-to-bitrise-io@2: {}
+      - cache-push@2: {}
